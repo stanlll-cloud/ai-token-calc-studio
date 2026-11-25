@@ -30,8 +30,9 @@ class TokenStudioTestCase(unittest.TestCase):
         port = server.server_address[1]
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/health", timeout=5) as resp:
+            with opener.open(f"http://127.0.0.1:{port}/api/health", timeout=5) as resp:
                 self.assertEqual(resp.status, 200)
                 health = json.loads(resp.read().decode("utf-8"))
                 self.assertEqual(health["status"], "ok")
@@ -50,7 +51,7 @@ class TokenStudioTestCase(unittest.TestCase):
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=5) as resp:
+            with opener.open(req, timeout=5) as resp:
                 self.assertEqual(resp.status, 200)
                 data = json.loads(resp.read().decode("utf-8"))
                 self.assertGreater(data["input_tokens"], 0)
